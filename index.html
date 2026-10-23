@@ -1,0 +1,310 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Discover useful products at NovaCart. Shop online with confidence.">
+<title>NovaCart | Discover Something Better</title>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: Arial, sans-serif;
+  background: #f7f7f5;
+  color: #191919;
+  line-height: 1.6;
+}
+header {
+  background: #151515;
+  color: white;
+  padding: 18px 6%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.logo { font-size: 25px; font-weight: bold; }
+header a { color: white; text-decoration: none; }
+.hero {
+  padding: 70px 6%;
+  background: #e8e5dd;
+  text-align: center;
+}
+.hero h1 { font-size: clamp(32px, 6vw, 55px); }
+.hero p { margin: 15px auto; max-width: 520px; }
+.btn {
+  display: inline-block;
+  background: #171717;
+  color: white;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 5px;
+  text-decoration: none;
+  cursor: pointer;
+  margin-top: 12px;
+}
+section { padding: 40px 6%; }
+.section-title { margin-bottom: 22px; font-size: 28px; }
+.search {
+  width: 100%;
+  padding: 13px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 24px;
+  font-size: 16px;
+}
+.products {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 20px;
+}
+.product {
+  background: white;
+  padding: 15px;
+  border-radius: 9px;
+  box-shadow: 0 3px 14px #0000000a;
+}
+.product img {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  border-radius: 6px;
+  background: #eee;
+}
+.product h3 { margin-top: 12px; }
+.price { font-size: 19px; font-weight: bold; margin-top: 8px; }
+.product p { color: #666; font-size: 14px; }
+.product button { width: 100%; }
+#cart {
+  background: white;
+  border-radius: 8px;
+  padding: 22px;
+}
+.cart-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+.cart-line button {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+footer {
+  background: #151515;
+  color: white;
+  padding: 30px 6%;
+  text-align: center;
+}
+footer a { color: white; }
+.small { font-size: 13px; color: #777; }
+footer .small { color: #ccc; }
+</style>
+</head>
+
+<body>
+<header>
+  <div class="logo">NovaCart.</div>
+  <a href="#products">Shop products</a>
+  <a href="#cart">Cart (<span id="count">0</span>)</a>
+</header>
+
+<div class="hero">
+  <h1>Discover Something Better.</h1>
+  <p>Explore products chosen to make everyday life better.
+     Simple shopping, helpful service, and a personal touch.</p>
+  <a class="btn" href="#products">Explore the collection</a>
+</div>
+
+<section id="products">
+  <h2 class="section-title">Featured Products</h2>
+  <input class="search" id="search"
+         placeholder="Search products..."
+         aria-label="Search products">
+
+  <div class="products" id="productList"></div>
+</section>
+
+<section>
+  <h2 class="section-title">Your Shopping Cart</h2>
+  <div id="cart">
+    <p>Your cart is empty.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Shop with confidence</h2>
+  <p>Questions before ordering? Contact us to confirm product
+     availability, delivery cost, and estimated shipping time.</p>
+  <p class="small">Delivery times depend on the product and destination.
+     Check the details before placing an order.</p>
+</section>
+
+<footer>
+  <h2>NovaCart.</h2>
+  <p>Discover. Choose. Enjoy.</p>
+  <p><a href="mailto:YOUR-EMAIL@example.com">Contact our store</a></p>
+  <p class="small">Add your real delivery, returns, privacy and
+     business policies before launching.</p>
+  <p class="small">&copy; <span id="year"></span> NovaCart.</p>
+</footer>
+
+<script>
+// Replace these sample products with your actual supplier products.
+const products = [
+  {
+    id: 1,
+    name: "Everyday Essential",
+    price: 19.99,
+    image: "https://placehold.co/500x400/e8e5dd/222?text=Product+1",
+    description: "A useful everyday product."
+  },
+  {
+    id: 2,
+    name: "Premium Choice",
+    price: 24.99,
+    image: "https://placehold.co/500x400/e8e5dd/222?text=Product+2",
+    description: "A stylish upgrade for your routine."
+  },
+  {
+    id: 3,
+    name: "Smart Accessory",
+    price: 14.99,
+    image: "https://placehold.co/500x400/e8e5dd/222?text=Product+3",
+    description: "A simple gift or personal essential."
+  }
+];
+
+let cart = [];
+
+function money(value) {
+  return "$" + value.toFixed(2);
+}
+
+function renderProducts(list = products) {
+  const area = document.getElementById("productList");
+
+  if (!list.length) {
+    area.innerHTML = "<p>No matching products found.</p>";
+    return;
+  }
+
+  area.innerHTML = list.map(p => `
+    <article class="product">
+      <img src="${p.image}" alt="${p.name}" loading="lazy">
+      <h3>${p.name}</h3>
+      <p>${p.description}</p>
+      <div class="price">${money(p.price)}</div>
+      <button class="btn" onclick="addToCart(${p.id})">
+        Add to cart
+      </button>
+    </article>
+  `).join("");
+}
+
+function addToCart(id) {
+  const item = cart.find(p => p.id === id);
+
+  if (item) {
+    item.quantity++;
+  } else {
+    cart.push({
+      ...products.find(p => p.id === id),
+      quantity: 1
+    });
+  }
+
+  renderCart();
+}
+
+function changeQuantity(id, amount) {
+  const item = cart.find(p => p.id === id);
+  if (!item) return;
+
+  item.quantity += amount;
+  cart = cart.filter(p => p.quantity > 0);
+  renderCart();
+}
+
+function renderCart() {
+  const area = document.getElementById("cart");
+  const count = cart.reduce((sum, p) => sum + p.quantity, 0);
+  const total = cart.reduce(
+    (sum, p) => sum + p.price * p.quantity, 0
+  );
+
+  document.getElementById("count").textContent = count;
+
+  if (!cart.length) {
+    area.innerHTML = "<p>Your cart is empty.</p>";
+    return;
+  }
+
+  area.innerHTML = cart.map(p => `
+    <div class="cart-line">
+      <div>
+        <strong>${p.name}</strong><br>
+        ${money(p.price)} × ${p.quantity}
+      </div>
+      <div>
+        <button onclick="changeQuantity(${p.id}, -1)">−</button>
+        <button onclick="changeQuantity(${p.id}, 1)">+</button>
+      </div>
+    </div>
+  `).join("") + `
+    <h3 style="margin-top:18px">Subtotal: ${money(total)}</h3>
+    <p class="small">Shipping is not included.</p>
+    <button class="btn" onclick="checkout()">
+      Order via WhatsApp
+    </button>
+  `;
+}
+
+function checkout() {
+  // Replace with your WhatsApp number in international format.
+  // Example format: 2567XXXXXXXX (digits only).
+  const phone = "YOUR_WHATSAPP_NUMBER";
+
+  if (!/^\d{10,15}$/.test(phone)) {
+    alert("Store setup needed: add your WhatsApp number in the code.");
+    return;
+  }
+
+  const lines = cart.map(p =>
+    `${p.name} x ${p.quantity} = ${money(p.price * p.quantity)}`
+  );
+
+  const total = cart.reduce(
+    (sum, p) => sum + p.price * p.quantity, 0
+  );
+
+  const message =
+    "Hello NovaCart! I would like to order:\n" +
+    lines.join("\n") +
+    "\nProduct subtotal: " + money(total) +
+    "\nPlease confirm shipping cost and delivery time.";
+
+  window.open(
+    "https://wa.me/" + phone + "?text=" +
+    encodeURIComponent(message),
+    "_blank"
+  );
+}
+
+document.getElementById("search").addEventListener("input", e => {
+  const query = e.target.value.toLowerCase();
+  renderProducts(products.filter(p =>
+    (p.name + " " + p.description).toLowerCase().includes(query)
+  ));
+});
+
+document.getElementById("year").textContent =
+  new Date().getFullYear();
+
+renderProducts();
+</script>
+</body>
+</html>
